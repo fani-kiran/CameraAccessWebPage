@@ -18,8 +18,8 @@ body {
     left: 0;
     right: 0;
     margin: auto;
-    width: 400px;
-    height: 100px;
+    width: auto;
+    height: auto;
 	padding: 10px;
     background-color: lightblue;
 }

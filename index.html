@@ -1,22 +1,71 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
-    <title>Brochure</title>
-	<link rel="stylesheet" href="styles.css">
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.4.0/dist/tf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+    <style>
+      #video {
+        width: 512px;
+        height: 512px;
+        display: block;
+      }
+      #photo-container {
+        width: 512px;
+        height: 512px;
+        display: none;
+      }
+    </style>
   </head>
   <body>
-	  <div class="containerpage">
-		  <div class="content">
-			<div id="photo-container" ></div>
-			<button id="take-photo-button">Take Photo</button>
-			<button id="save-photo-button">Save brochure</button>
-			  <div id="abc">
-			  image sare added when it is needed.<br>
-				  add more detials in this
-			  </div>
-		  </div>
-		</div>
-	  </body>
-  <script src="app.js"></script>
+    <div>
+      <video id="video"></video>
+      <canvas id="photo-container"></canvas>
+      <br>
+      <button id="take-photo-button">Take Photo</button>
+      <button id="save-photo-button">Save Photo</button>
+      <button id="save-page-button">Save Page</button>
+    </div>
+
+    <script>
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('photo-container');
+      const takePhotoButton = document.getElementById('take-photo-button');
+      const savePhotoButton = document.getElementById('save-photo-button');
+      const savePageButton = document.getElementById('save-page-button');
+
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: false })
+        .then(stream => {
+          video.srcObject = stream;
+          video.play();
+        });
+
+      takePhotoButton.addEventListener('click', () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+        video.style.display = 'none';
+        canvas.style.display = 'block';
+      });
+
+      savePhotoButton.addEventListener('click', () => {
+        canvas.toBlob(function(blob) {
+          const link = document.createElement('a');
+          link.download = 'image.png';
+          link.href = URL.createObjectURL(blob);
+          link.click();
+        });
+      });
+
+      savePageButton.addEventListener('click', () => {
+        const doc = new jsPDF();
+        doc.addHTML(document.body, function() {
+          doc.save('page.pdf');
+        });
+      });
+    </script>
+  </body>
 </html>

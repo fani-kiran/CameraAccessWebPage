@@ -1,42 +1,36 @@
 // Define HTML elements
-const video = document.createElement('video');
-const canvas = document.createElement('canvas');
-const photoContainer = document.getElementById('photo-container');
+// Create video, canvas, and photo container elements
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const previewContainer = document.getElementById('preview-container');
 const takePhotoButton = document.getElementById('take-photo-button');
-const savePhotoButton = document.getElementById('save-photo-button');
+const photoContainer = document.getElementById('photo-container');
 
-// Request access to user's camera and set video stream
+// Get the camera stream
 navigator.mediaDevices
   .getUserMedia({ video: true, audio: false })
   .then(stream => {
     video.srcObject = stream;
-    video.play();
+    previewContainer.style.backgroundImage = `url(${URL.createObjectURL(stream)})`;
   });
 
-// Take photo and update button with photo
+// Take a photo when the take photo button is clicked
 takePhotoButton.addEventListener('click', () => {
-  // Draw image from video to canvas
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
-  canvas.getContext('2d').drawImage(video, 0, 0);
-  
-  // Clear previous content and add canvas to photo container
+  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+  previewContainer.style.backgroundImage = '';
+  previewContainer.style.display = 'none';
   photoContainer.innerHTML = '';
   photoContainer.appendChild(canvas);
-  
-  // Set background image of button to the photo
-  takePhotoButton.style.backgroundImage = `url(${canvas.toDataURL()})`;
-  takePhotoButton.style.backgroundSize = 'cover';
 });
 
-// Save photo as PNG
-savePhotoButton.addEventListener('click', () => {
-  canvas.toBlob(function(blob) {
-    // Create a download link for the PNG image
-    const link = document.createElement('a');
-    link.download = 'image.png';
-    link.href = URL.createObjectURL(blob);
-    link.click();
+// Save the full page as a PDF when the photo is taken
+window.addEventListener('DOMContentLoaded', function() {
+  const doc = new jsPDF();
+  doc.addHTML(document.body, function() {
+    doc.save('page.pdf');
   });
 });
+
 // JavaScript Document
